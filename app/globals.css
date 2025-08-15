@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #0B1221;
+  --foreground: #E6EDF3;
+}
+
+html, body, #__next {
+  height: 100%;
+}
+
+.card {
+  @apply rounded-xl border border-white/10 bg-white/5 backdrop-blur shadow-glow;
+}
+
+.btn {
+  @apply inline-flex items-center justify-center rounded-lg px-4 py-2 font-medium transition-colors;
+}
+
+.btn-primary {
+  @apply bg-primary text-primary-foreground hover:bg-primary/90;
+}
+
+.btn-outline {
+  @apply border border-white/20 text-foreground hover:bg-white/10;
+}
