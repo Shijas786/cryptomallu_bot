@@ -14,11 +14,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <div className="absolute inset-0 pointer-events-none opacity-[0.05]" style={{ backgroundImage: 'url(/base-watermark.svg)', backgroundRepeat: 'no-repeat', backgroundPosition: 'right -100px top -80px', backgroundSize: '700px 700px' }} />
         <header className="relative z-10 border-b border-white/10">
           <div className="mx-auto max-w-7xl px-4 py-4 flex items-center justify-between">
-            <a href="/" className="text-lg font-semibold tracking-tight">Cryptomallu</a>
+            <a href="/" className="flex items-center gap-2">
+              <img src="/logo.png" alt="Cryptomallu" className="h-8 w-8 rounded-full border border-white/10" />
+              <span className="text-lg font-semibold tracking-tight">Cryptomallu</span>
+            </a>
             <nav className="flex items-center gap-4 text-sm">
               <a className="hover:text-primary transition-colors" href="/p2p">P2P</a>
               <a className="hover:text-primary transition-colors" href="/profile">Profile</a>
-              <a className="hover:text-primary transition-colors" href="https://t.me/cryptomallubot" target="_blank" rel="noreferrer">Telegram</a>
+              <a className="hover:text-primary transition-colors" href={`https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'Cryptomallu_bot'}`} target="_blank" rel="noreferrer">Telegram</a>
             </nav>
           </div>
         </header>
