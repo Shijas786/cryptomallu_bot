@@ -19,6 +19,7 @@ export default function ProfilePage() {
   const [balance, setBalance] = useState<string | null>(null);
   const [trades, setTrades] = useState<Trade[]>([]);
   const [myAds, setMyAds] = useState<any[]>([]);
+  const [myOrders, setMyOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -59,6 +60,22 @@ export default function ProfilePage() {
       const postedByList = myTelegram ? [...walletVariants, myTelegram] : walletVariants;
       const { data: adsData } = await query.in('posted_by', postedByList as any);
       if (!cancel) setMyAds((adsData as any[]) || []);
+
+      // Load my orders (as buyer or seller) using wallet variants and linked telegram id
+      const idents = postedByList;
+      const { data: byBuyer } = await client
+        .from('orders')
+        .select('id, ad_id, token, unit_price, amount, status, buyer_id, seller_id, created_at')
+        .in('buyer_id', idents as any)
+        .order('created_at', { ascending: false });
+      const { data: bySeller } = await client
+        .from('orders')
+        .select('id, ad_id, token, unit_price, amount, status, buyer_id, seller_id, created_at')
+        .in('seller_id', idents as any)
+        .order('created_at', { ascending: false });
+      const merged = [...(byBuyer as any[] || []), ...(bySeller as any[] || [])];
+      const unique = Array.from(new Map(merged.map((o) => [o.id, o])).values());
+      if (!cancel) setMyOrders(unique);
       if (!cancel) setLoading(false);
     };
     load();
@@ -170,6 +187,24 @@ export default function ProfilePage() {
                       </li>
                     );
                   })}
+                </ul>
+              )}
+            </div>
+
+            <div className="card p-4">
+              <div className="font-semibold mb-2">Your Active Orders</div>
+              {loading ? (
+                <div className="text-white/60">Loading…</div>
+              ) : myOrders.length === 0 ? (
+                <div className="text-white/60">No active orders.</div>
+              ) : (
+                <ul className="divide-y divide-white/10">
+                  {myOrders.map((o) => (
+                    <li key={o.id} className="py-2 flex items-center justify-between text-sm">
+                      <span className="text-white/80">{o.token} • {o.amount} @ ${o.unit_price} • {String(o.status).toUpperCase()}</span>
+                      <a className="btn btn-outline" href={`https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'Cryptomallu_bot'}?start=${encodeURIComponent('order:' + o.ad_id)}`} target="_blank" rel="noreferrer">Open</a>
+                    </li>
+                  ))}
                 </ul>
               )}
             </div>
