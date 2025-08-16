@@ -1,9 +1,11 @@
 "use client";
 import { useState } from 'react';
+import { useAccount } from 'wagmi';
 
 type Props = { onPosted?: () => void };
 
 export default function PostAdForm({ onPosted }: Props) {
+  const { address, isConnected } = useAccount();
   const [form, setForm] = useState({
     type: 'buy' as 'buy' | 'sell',
     token: 'USDT' as 'BTC' | 'ETH' | 'USDT' | 'USDC',
@@ -20,6 +22,7 @@ export default function PostAdForm({ onPosted }: Props) {
     setSubmitting(true);
     setError(null);
     try {
+      if (!isConnected || !address) throw new Error('Connect your wallet to post an ad');
       const res = await fetch('/api/ads', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -30,6 +33,7 @@ export default function PostAdForm({ onPosted }: Props) {
           price_inr: Number(form.price_inr),
           amount: Number(form.amount),
           payment_method: form.payment_method,
+          posted_by: address,
         }),
       });
       const data = await res.json();

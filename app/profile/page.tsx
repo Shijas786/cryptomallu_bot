@@ -54,9 +54,10 @@ export default function ProfilePage() {
         .from('ads')
         .select('id, type, token, price_usd, price_inr, amount, payment_method, created_at, fulfilled, status, posted_by')
         .order('created_at', { ascending: false });
-      const { data: adsData } = myTelegram
-        ? await query.in('posted_by', [walletAddress, myTelegram])
-        : await query.eq('posted_by', walletAddress);
+      const wa = walletAddress;
+      const walletVariants = Array.from(new Set([wa, wa.toLowerCase(), wa.toUpperCase()]));
+      const postedByList = myTelegram ? [...walletVariants, myTelegram] : walletVariants;
+      const { data: adsData } = await query.in('posted_by', postedByList as any);
       if (!cancel) setMyAds((adsData as any[]) || []);
       if (!cancel) setLoading(false);
     };
