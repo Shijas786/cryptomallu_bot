@@ -18,6 +18,7 @@ export default function ProfilePage() {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [balance, setBalance] = useState<string | null>(null);
   const [trades, setTrades] = useState<Trade[]>([]);
+  const [myAds, setMyAds] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -40,6 +41,13 @@ export default function ProfilePage() {
         .order('created_at', { ascending: false })
         .limit(10);
       if (!cancel) setTrades((tradesData as unknown as Trade[]) ?? []);
+
+      const { data: adsData } = await client
+        .from('ads')
+        .select('id, type, token, price_usd, price_inr, amount, payment_method, created_at, fulfilled, status, posted_by')
+        .eq('posted_by', walletAddress)
+        .order('created_at', { ascending: false });
+      if (!cancel) setMyAds((adsData as any[]) || []);
       if (!cancel) setLoading(false);
     };
     load();
@@ -114,6 +122,43 @@ export default function ProfilePage() {
             <div className="card p-4">
               <div className="font-semibold mb-2">Recent Trades</div>
               {loading ? <div className="text-white/60">Loading…</div> : tradeList}
+            </div>
+
+            <div className="card p-4">
+              <div className="font-semibold mb-2">Your Active Ads</div>
+              {loading ? (
+                <div className="text-white/60">Loading…</div>
+              ) : myAds.length === 0 ? (
+                <div className="text-white/60">No active ads.</div>
+              ) : (
+                <ul className="divide-y divide-white/10">
+                  {myAds.map((ad) => {
+                    const fulfilled = ad.fulfilled === true || String(ad.status || '').toLowerCase() === 'fulfilled';
+                    return (
+                      <li key={ad.id} className="py-2 flex items-center justify-between text-sm">
+                        <span className="text-white/80">{ad.type.toUpperCase()} {ad.amount} {ad.token} @ ${ad.price_usd}</span>
+                        <button
+                          className="btn btn-outline"
+                          disabled={fulfilled}
+                          onClick={async () => {
+                            try {
+                              const res = await fetch('/api/ads/delete', {
+                                method: 'POST',
+                                headers: { 'content-type': 'application/json' },
+                                body: JSON.stringify({ ad_id: ad.id, wallet_address: walletAddress }),
+                              });
+                              const data = await res.json();
+                              if (res.ok && data?.ok) {
+                                setMyAds((list) => list.filter((x) => x.id !== ad.id));
+                              }
+                            } catch (_) {}
+                          }}
+                        >{fulfilled ? 'Fulfilled' : 'Delete'}</button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </div>
           </div>
         </div>
