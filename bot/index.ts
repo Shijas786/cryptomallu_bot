@@ -7,6 +7,7 @@ import { cmdPrices, cmdMyAds, cmdNewAd, cmdCoin, refreshCoin, cmdTop, cmdSearch,
 import OpenAI from 'openai';
 import { askAI, classifyTradeIntent } from './ai';
 import { createClient } from '@supabase/supabase-js';
+import { startOrder, markPaid, release as releaseOrder, cancel as cancelOrder, dispute as disputeOrder } from './p2p';
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 if (!BOT_TOKEN) {
@@ -76,6 +77,12 @@ bot.command('ad', (ctx) => {
   const adId = ((ctx.message as any)?.text || '').split(/\s+/)[1];
   if (!adId) return (ctx as any).reply('Usage: /ad <id>');
   return cmdAdPreview(ctx as any, adId);
+});
+
+bot.command('order', (ctx) => {
+  const adId = ((ctx.message as any)?.text || '').split(/\s+/)[1];
+  if (!adId) return (ctx as any).reply('Usage: /order <adId>');
+  return startOrder(ctx as any, adId);
 });
 
 // Admin: reload caches (restrict by Telegram id if needed)
@@ -154,6 +161,26 @@ bot.on('callback_query', async (ctx: any) => {
     }
     return ctx.answerCbQuery?.();
   }
+  if (data.startsWith('order:')) {
+    const [, action, id] = data.split(':');
+    if (action === 'paid') {
+      await markPaid(ctx as any, id);
+      return ctx.answerCbQuery?.('Marked paid');
+    }
+    if (action === 'release') {
+      await releaseOrder(ctx as any, id);
+      return ctx.answerCbQuery?.('Released');
+    }
+    if (action === 'cancel') {
+      await cancelOrder(ctx as any, id);
+      return ctx.answerCbQuery?.('Canceled');
+    }
+    if (action === 'dispute') {
+      await disputeOrder(ctx as any, id);
+      return ctx.answerCbQuery?.('Disputed');
+    }
+    return ctx.answerCbQuery?.();
+  }
   if (data.startsWith('s:')) {
     const [, source, page, size, q] = data.split(':');
     const pg = Number(page) || 1;
@@ -213,7 +240,7 @@ bot.on('text', async (ctx: any) => {
   // Treat unknown /<ticker> as /coin <ticker>
   if (!text.startsWith('/')) return;
   const cmd = text.slice(1).split(/\s+/)[0].toLowerCase();
-  const reserved = new Set(['start','help','prices','myads','newad','ai','coin','top','search','value']);
+  const reserved = new Set(['start','help','prices','myads','newad','ai','coin','top','search','value','ad','order']);
   if (reserved.has(cmd)) return;
   if (!/^[a-z0-9]{1,15}$/.test(cmd)) return;
   return cmdCoin(ctx as any, cmd);
