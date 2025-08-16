@@ -23,8 +23,22 @@ export async function POST(req: Request) {
       .single();
     if (selErr || !ad) return Response.json({ ok: false, error: 'Ad not found' }, { status: 404 });
 
-    const actor = (wallet_address ?? telegram_id) as string;
-    if (String(ad.posted_by || '') !== String(actor)) {
+    // Determine allowed identities: wallet itself and any linked telegram_id
+    let allowedPosterIds = new Set<string>();
+    if (wallet_address) {
+      allowedPosterIds.add(String(wallet_address));
+      // fetch linked telegram_id for this wallet
+      const { data: userRow } = await supabase
+        .from('users')
+        .select('telegram_id')
+        .eq('wallet_address', wallet_address)
+        .limit(1);
+      const linkedTelegramId = userRow?.[0]?.telegram_id as string | undefined;
+      if (linkedTelegramId) allowedPosterIds.add(String(linkedTelegramId));
+    }
+    if (telegram_id) allowedPosterIds.add(String(telegram_id));
+
+    if (!allowedPosterIds.has(String(ad.posted_by || ''))) {
       return Response.json({ ok: false, error: 'Forbidden' }, { status: 403 });
     }
 

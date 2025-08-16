@@ -42,11 +42,21 @@ export default function ProfilePage() {
         .limit(10);
       if (!cancel) setTrades((tradesData as unknown as Trade[]) ?? []);
 
-      const { data: adsData } = await client
+      // Load my active ads posted by me (by wallet or linked telegram)
+      const { data: me } = await client
+        .from('users')
+        .select('telegram_id')
+        .eq('wallet_address', walletAddress)
+        .limit(1);
+      const myTelegram = me?.[0]?.telegram_id as string | undefined;
+
+      const query = client
         .from('ads')
         .select('id, type, token, price_usd, price_inr, amount, payment_method, created_at, fulfilled, status, posted_by')
-        .eq('posted_by', walletAddress)
         .order('created_at', { ascending: false });
+      const { data: adsData } = myTelegram
+        ? await query.in('posted_by', [walletAddress, myTelegram])
+        : await query.eq('posted_by', walletAddress);
       if (!cancel) setMyAds((adsData as any[]) || []);
       if (!cancel) setLoading(false);
     };
