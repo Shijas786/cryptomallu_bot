@@ -17,7 +17,14 @@ function verifyTelegramAuth(data: Record<string, string | number>): { valid: boo
   const secret = crypto.createHash('sha256').update(botToken).digest();
   const computed = crypto.createHmac('sha256', secret).update(entries).digest('hex');
   const ok = computed === receivedHash;
-  return { valid: ok, reason: ok ? undefined : 'hash_mismatch' };
+  if (!ok) return { valid: false, reason: 'hash_mismatch' };
+
+  // Freshness window: 10 minutes
+  const now = Math.floor(Date.now() / 1000);
+  const authDate = Number(data.auth_date || 0);
+  if (!Number.isFinite(authDate)) return { valid: false, reason: 'bad_auth_date' };
+  if (now - authDate > 600) return { valid: false, reason: 'expired' };
+  return { valid: true };
 }
 
 export async function GET(request: Request) {
