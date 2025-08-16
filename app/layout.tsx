@@ -3,8 +3,8 @@ import type { ReactNode } from 'react';
 import Providers from './providers';
 
 export const metadata = {
-  title: 'Cryptomallu — Kerala First AI-Powered P2P Crypto Marketplace on Base',
-  description: 'Browse P2P ads, view live crypto prices, and start trades via our Telegram bot.',
+  title: 'Cryptomallu — P2P Crypto Escrow on Base',
+  description: 'Buy and sell crypto safely with Permit2‑powered escrow and fast local payments. Start on Telegram or browse live P2P ads.',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

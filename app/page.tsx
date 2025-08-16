@@ -7,10 +7,10 @@ export default function HomePage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
           <div>
             <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
-              Kerala First AI-Powered P2P Crypto Marketplace on Base
+              Kerala’s AI‑Powered P2P Crypto Marketplace on Base
             </h1>
             <p className="mt-4 text-white/70 max-w-xl">
-              Trade safely with gasless escrow, AI fraud detection, and admin dispute resolution. Start on Telegram or browse live P2P ads.
+              Buy and sell crypto with confidence. Lock funds in smart‑contract escrow and settle fast with local payments.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <a className="btn btn-primary" href={`https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'Cryptomallu_bot'}`} target="_blank" rel="noreferrer">Start on Telegram</a>
@@ -20,9 +20,9 @@ export default function HomePage() {
           <div>
             <div className="card p-6">
               <div className="text-sm text-white/70">Escrow on Base</div>
-              <div className="mt-2 text-4xl font-bold">Gasless. Secure. Fast.</div>
+              <div className="mt-2 text-4xl font-bold">Secure, Permit2‑Powered Escrow</div>
               <div className="mt-4 text-white/60 text-sm">
-                Powered by smart contracts and automated risk checks. Your funds are held safely until both parties confirm.
+                Funds are locked in escrow until both parties confirm for transparent on‑chain settlement.
               </div>
             </div>
           </div>
@@ -54,7 +54,7 @@ export default function HomePage() {
         <ul className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-white/80">
           <li className="card p-4">Gasless Escrow on Base</li>
           <li className="card p-4">Admin Dispute Resolution</li>
-          <li className="card p-4">AI Fraud Detection</li>
+          
         </ul>
       </section>
     </div>

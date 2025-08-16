@@ -4,6 +4,7 @@ import { supabaseBrowser } from '@/lib/supabaseClient';
 import P2PFilters, { type Filters } from '@/components/P2PFilters';
 import P2PTable, { type P2PAd } from '@/components/P2PTable';
 import PostAdForm from './PostAdForm';
+import EscrowPanel from '@/components/EscrowPanel';
 
 export default function P2PPage() {
   const [ads, setAds] = useState<P2PAd[]>([]);
@@ -68,6 +69,11 @@ export default function P2PPage() {
         ) : (
           <P2PTable ads={ads} filters={filters} />
         )}
+      </div>
+
+      {/* Simple anchor to open escrow panel from bot deep link */}
+      <div id="escrow-anchor" className="mt-8">
+        <EscrowPanel adId={(typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('trade') || '' : '')} />
       </div>
     </div>
   );
