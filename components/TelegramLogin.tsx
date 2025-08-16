@@ -46,11 +46,11 @@ export default function TelegramLogin({ botUsername, onAuth }: Props) {
     script.setAttribute('data-telegram-login', cleanUsername);
     script.setAttribute('data-size', 'large');
     script.setAttribute('data-userpic', 'false');
-    // Use popup + server callback flow
+    // Use popup + server callback flow (and keep onAuth fallback)
     script.setAttribute('data-auth-url', callbackUrl);
+    script.setAttribute('data-onauth', 'onTelegramAuth(user)');
     // Force popup mode to avoid inline inside some CSPs
     script.setAttribute('data-radius', '4');
-    script.setAttribute('data-request-access', 'write');
     script.setAttribute('data-request-access', 'write');
 
     (window as any).onTelegramAuth = async (user: any) => {
