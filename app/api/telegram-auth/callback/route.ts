@@ -7,7 +7,7 @@ function verifyTelegramAuth(data: Record<string, string | number>): { valid: boo
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   if (!botToken) return { valid: false, reason: 'missing_bot_token' };
 
-  const receivedHash = String(data.hash || '');
+  const receivedHash = String(data.hash || '').toLowerCase();
   const entries = Object.entries(data)
     .filter(([key]) => key !== 'hash')
     .sort(([a], [b]) => a.localeCompare(b))
@@ -15,7 +15,7 @@ function verifyTelegramAuth(data: Record<string, string | number>): { valid: boo
     .join('\n');
 
   const secret = crypto.createHash('sha256').update(botToken).digest();
-  const computed = crypto.createHmac('sha256', secret).update(entries).digest('hex');
+  const computed = crypto.createHmac('sha256', secret).update(entries).digest('hex').toLowerCase();
   const ok = computed === receivedHash;
   if (!ok) return { valid: false, reason: 'hash_mismatch' };
 

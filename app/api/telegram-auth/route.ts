@@ -7,7 +7,7 @@ function verifyTelegramAuth(data: Record<string, string | number>): { valid: boo
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   if (!botToken) return { valid: false, reason: 'missing_bot_token' };
 
-  const receivedHash = String(data.hash || '');
+  const receivedHash = String(data.hash || '').toLowerCase();
   const entries = Object.entries(data)
     .filter(([key]) => key !== 'hash')
     .sort(([a], [b]) => a.localeCompare(b))
@@ -18,7 +18,8 @@ function verifyTelegramAuth(data: Record<string, string | number>): { valid: boo
   const computed = crypto
     .createHmac('sha256', secret)
     .update(entries)
-    .digest('hex');
+    .digest('hex')
+    .toLowerCase();
 
   const ok = computed === receivedHash;
   if (!ok) return { valid: false, reason: 'hash_mismatch' };
@@ -33,8 +34,11 @@ function verifyTelegramAuth(data: Record<string, string | number>): { valid: boo
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const authData = body?.authData ?? {};
+    const body = await request.json().catch(() => ({}));
+    const url = new URL(request.url);
+    const query = Object.fromEntries(url.searchParams.entries());
+    const raw = body?.authData && Object.keys(body.authData).length ? body.authData : query;
+    const authData = raw ?? {};
     const { valid, reason } = verifyTelegramAuth(authData);
     if (!valid) {
       return Response.json({ ok: false, error: 'Invalid auth', reason }, { status: 401 });
