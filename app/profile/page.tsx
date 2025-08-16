@@ -4,6 +4,7 @@ import TelegramLogin from '@/components/TelegramLogin';
 import { fetchBaseBalance } from '@/lib/wallet';
 import { supabaseBrowser } from '@/lib/supabaseClient';
 import WalletConnect from '@/components/WalletConnect';
+import SignInWithWallet from '@/components/SignInWithWallet';
 
 type Trade = {
   id: string;
@@ -113,8 +114,40 @@ export default function ProfilePage() {
       <p className="text-white/60 mt-1">Login with Telegram. If your wallet is linked in the bot, we will show Base balance and last trades.</p>
 
       {!tgUser && (
-        <div className="mt-6">
+        <div className="mt-6 space-y-4">
           <TelegramLogin botUsername={BOT_USERNAME} onAuth={onTelegramAuth} />
+          <div className="text-white/60 text-sm">Or</div>
+          <div className="flex items-center gap-3">
+            <WalletConnect onConnected={async (addr) => {
+              try {
+                await fetch('/api/user/upsert', {
+                  method: 'POST', headers: { 'content-type': 'application/json' },
+                  body: JSON.stringify({ wallet_address: addr })
+                });
+                setWalletAddress(addr);
+                const bal = await fetchBaseBalance(addr);
+                setBalance(bal.etherFormatted);
+              } catch (_) {}
+            }} />
+            <SignInWithWallet onSignedIn={async (addr) => {
+              try {
+                await fetch('/api/user/upsert', {
+                  method: 'POST', headers: { 'content-type': 'application/json' },
+                  body: JSON.stringify({ wallet_address: addr })
+                });
+                setWalletAddress(addr);
+                const bal = await fetchBaseBalance(addr);
+                setBalance(bal.etherFormatted);
+              } catch (_) {}
+            }} />
+          </div>
+          {walletAddress && (
+            <div className="card p-4">
+              <div className="font-semibold">Wallet</div>
+              <div className="text-white/60 text-sm">Address: <span className="text-white/80">{walletAddress}</span></div>
+              <div className="text-white/60 text-sm">Base Balance: <span className="text-white/80">{balance ?? (loading ? 'Loading…' : '—')}</span></div>
+            </div>
+          )}
         </div>
       )}
 
@@ -127,6 +160,17 @@ export default function ProfilePage() {
             </div>
             <div className="flex items-center gap-3">
               <WalletConnect onConnected={async (addr) => {
+                try {
+                  await fetch('/api/user/upsert', {
+                    method: 'POST', headers: { 'content-type': 'application/json' },
+                    body: JSON.stringify({ telegram_id: tgUser.telegram_id, wallet_address: addr })
+                  });
+                  setWalletAddress(addr);
+                  const bal = await fetchBaseBalance(addr);
+                  setBalance(bal.etherFormatted);
+                } catch (_) {}
+              }} />
+              <SignInWithWallet onSignedIn={async (addr) => {
                 try {
                   await fetch('/api/user/upsert', {
                     method: 'POST', headers: { 'content-type': 'application/json' },

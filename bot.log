@@ -1,0 +1,7 @@
+
+> cryptomallu@0.1.0 bot
+> tsx bot/index.ts
+
+[dotenv@17.2.1] injecting env (16) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.2.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+Starting bot as @Cryptomallu_bot (id 1872479694)
