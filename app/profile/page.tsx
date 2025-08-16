@@ -199,12 +199,35 @@ export default function ProfilePage() {
                 <div className="text-white/60">No active orders.</div>
               ) : (
                 <ul className="divide-y divide-white/10">
-                  {myOrders.map((o) => (
-                    <li key={o.id} className="py-2 flex items-center justify-between text-sm">
-                      <span className="text-white/80">{o.token} • {o.amount} @ ${o.unit_price} • {String(o.status).toUpperCase()}</span>
-                      <a className="btn btn-outline" href={`https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'Cryptomallu_bot'}?start=${encodeURIComponent('order:' + o.ad_id)}`} target="_blank" rel="noreferrer">Open</a>
-                    </li>
-                  ))}
+                  {myOrders.map((o) => {
+                    const s = String(o.status || '').toLowerCase();
+                    const canCancel = ['pending','paid','matched'].includes(s);
+                    return (
+                      <li key={o.id} className="py-2 flex items-center justify-between text-sm">
+                        <span className="text-white/80">{o.token} • {o.amount} @ ${o.unit_price} • {String(o.status).toUpperCase()}</span>
+                        <div className="flex items-center gap-2">
+                          <a className="btn btn-outline" href={`https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'Cryptomallu_bot'}?start=${encodeURIComponent('order:' + o.ad_id)}`} target="_blank" rel="noreferrer">Open</a>
+                          <button
+                            className="btn btn-outline"
+                            disabled={!canCancel}
+                            onClick={async () => {
+                              try {
+                                const res = await fetch('/api/orders/cancel', {
+                                  method: 'POST',
+                                  headers: { 'content-type': 'application/json' },
+                                  body: JSON.stringify({ order_id: o.id, wallet_address: walletAddress }),
+                                });
+                                const data = await res.json();
+                                if (res.ok && data?.ok) {
+                                  setMyOrders((list) => list.map((x) => x.id === o.id ? { ...x, status: 'canceled' } : x));
+                                }
+                              } catch (_) {}
+                            }}
+                          >Cancel</button>
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </div>
