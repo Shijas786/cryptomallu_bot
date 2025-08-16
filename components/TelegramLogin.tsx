@@ -12,6 +12,7 @@ type Props = { botUsername: string; onAuth: (user: any) => void };
 
 export default function TelegramLogin({ botUsername, onAuth }: Props) {
   useEffect(() => {
+    const cleanUsername = (botUsername || '').replace(/^@/, '');
     // 1) If opened inside Telegram WebApp, use built-in user data (no popup)
     try {
       const tg = (window as any).Telegram?.WebApp;
@@ -40,11 +41,14 @@ export default function TelegramLogin({ botUsername, onAuth }: Props) {
     const script = document.createElement('script');
     script.src = 'https://telegram.org/js/telegram-widget.js?22';
     script.async = true;
-    script.setAttribute('data-telegram-login', botUsername);
+    script.setAttribute('data-telegram-login', cleanUsername);
     script.setAttribute('data-size', 'large');
     script.setAttribute('data-userpic', 'false');
     script.setAttribute('data-onauth', 'onTelegramAuth(user)');
     script.setAttribute('data-auth-url', callbackUrl);
+    // Force popup mode to avoid inline inside some CSPs
+    script.setAttribute('data-radius', '4');
+    script.setAttribute('data-request-access', 'write');
     script.setAttribute('data-request-access', 'write');
 
     (window as any).onTelegramAuth = async (user: any) => {
