@@ -28,8 +28,10 @@ export async function POST(req: Request) {
       return Response.json({ ok: false, error: 'Forbidden' }, { status: 403 });
     }
 
-    const isFulfilled = (ad as any).fulfilled === true || String((ad as any).status || '').toLowerCase() === 'fulfilled';
-    if (isFulfilled) {
+    const status = String((ad as any).status || '').toLowerCase();
+    const isFulfilled = (ad as any).fulfilled === true || status === 'fulfilled';
+    const isInProgress = ['pending', 'in_progress', 'matched', 'locked'].includes(status);
+    if (isFulfilled || isInProgress) {
       return Response.json({ ok: false, error: 'Ad already fulfilled' }, { status: 409 });
     }
 

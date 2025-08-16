@@ -133,13 +133,15 @@ export default function ProfilePage() {
               ) : (
                 <ul className="divide-y divide-white/10">
                   {myAds.map((ad) => {
-                    const fulfilled = ad.fulfilled === true || String(ad.status || '').toLowerCase() === 'fulfilled';
+                    const s = String(ad.status || '').toLowerCase();
+                    const fulfilled = ad.fulfilled === true || s === 'fulfilled';
+                    const inProgress = ['pending','in_progress','matched','locked'].includes(s);
                     return (
                       <li key={ad.id} className="py-2 flex items-center justify-between text-sm">
                         <span className="text-white/80">{ad.type.toUpperCase()} {ad.amount} {ad.token} @ ${ad.price_usd}</span>
                         <button
                           className="btn btn-outline"
-                          disabled={fulfilled}
+                          disabled={fulfilled || inProgress}
                           onClick={async () => {
                             try {
                               const res = await fetch('/api/ads/delete', {
@@ -153,7 +155,7 @@ export default function ProfilePage() {
                               }
                             } catch (_) {}
                           }}
-                        >{fulfilled ? 'Fulfilled' : 'Delete'}</button>
+                        >{fulfilled ? 'Fulfilled' : inProgress ? 'In progress' : 'Delete'}</button>
                       </li>
                     );
                   })}
