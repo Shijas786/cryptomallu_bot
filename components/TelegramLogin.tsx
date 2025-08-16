@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 declare global {
   interface Window {
@@ -11,6 +11,7 @@ declare global {
 type Props = { botUsername: string; onAuth: (user: any) => void };
 
 export default function TelegramLogin({ botUsername, onAuth }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const cleanUsername = (botUsername || '').replace(/^@/, '');
     // 1) If opened inside Telegram WebApp, use built-in user data (no popup)
@@ -44,7 +45,7 @@ export default function TelegramLogin({ botUsername, onAuth }: Props) {
     script.setAttribute('data-telegram-login', cleanUsername);
     script.setAttribute('data-size', 'large');
     script.setAttribute('data-userpic', 'false');
-    script.setAttribute('data-onauth', 'onTelegramAuth(user)');
+    // Use popup + server callback flow
     script.setAttribute('data-auth-url', callbackUrl);
     // Force popup mode to avoid inline inside some CSPs
     script.setAttribute('data-radius', '4');
@@ -72,14 +73,25 @@ export default function TelegramLogin({ botUsername, onAuth }: Props) {
       }
     };
     window.addEventListener('message', onMsg);
-    document.body.appendChild(script);
+    if (containerRef.current) {
+      try { containerRef.current.innerHTML = ''; } catch {}
+      containerRef.current.appendChild(script);
+    } else {
+      document.body.appendChild(script);
+    }
     return () => {
-      try { document.body.removeChild(script); } catch (_) {}
+      try {
+        if (containerRef.current && script.parentElement === containerRef.current) {
+          containerRef.current.removeChild(script);
+        } else if (script.parentElement) {
+          script.parentElement.removeChild(script);
+        }
+      } catch (_) {}
       window.removeEventListener('message', onMsg);
       delete (window as any).onTelegramAuth;
     };
   }, [botUsername, onAuth]);
 
-  return <div className="inline-block text-white/70" id="telegram-login-widget">Waiting for Telegram…</div>;
+  return <div className="inline-block text-white/70" ref={containerRef} id="telegram-login-widget">Waiting for Telegram…</div>;
 }
 
