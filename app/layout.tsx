@@ -46,7 +46,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 <li><a className="hover:text-primary" href="#">About</a></li>
                 <li><a className="hover:text-primary" href="#">Contact</a></li>
                 <li><a className="hover:text-primary" href="#">Terms</a></li>
-                <li><a className="hover:text-primary" href="#">Privacy</a></li>
+                <li><a className="hover:text-primary" href="/privacy">Privacy</a></li>
               </ul>
             </div>
           </div>
