@@ -16,6 +16,10 @@ function verifyTelegramAuth(data: Record<string, string | number>): { valid: boo
 
   const secret = crypto.createHash('sha256').update(botToken).digest();
   const computed = crypto.createHmac('sha256', secret).update(entries).digest('hex').toLowerCase();
+  if (process.env.DEBUG_TELEGRAM_AUTH === 'true') {
+    // eslint-disable-next-line no-console
+    console.log('tg-auth verify', { entries, receivedHash, computed });
+  }
   const ok = computed === receivedHash;
   if (!ok) return { valid: false, reason: 'hash_mismatch' };
 
