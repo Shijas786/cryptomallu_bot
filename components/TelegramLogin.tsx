@@ -12,6 +12,7 @@ type Props = { botUsername: string; onAuth: (user: any) => void };
 
 export default function TelegramLogin({ botUsername, onAuth }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const handledRef = useRef(false);
   useEffect(() => {
     const cleanUsername = (botUsername || '').replace(/^@/, '');
     // 1) If opened inside Telegram WebApp, use built-in user data (no popup)
@@ -54,6 +55,8 @@ export default function TelegramLogin({ botUsername, onAuth }: Props) {
 
     (window as any).onTelegramAuth = async (user: any) => {
       try {
+        if (handledRef.current) return; // avoid duplicate calls
+        handledRef.current = true;
         const res = await fetch('/api/telegram-auth', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
@@ -89,6 +92,7 @@ export default function TelegramLogin({ botUsername, onAuth }: Props) {
       } catch (_) {}
       window.removeEventListener('message', onMsg);
       delete (window as any).onTelegramAuth;
+      handledRef.current = false;
     };
   }, [botUsername, onAuth]);
 
