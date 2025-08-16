@@ -102,7 +102,9 @@ async function updateOrderStatus(ctx: Ctx, orderId: string, next: OrderStatus) {
 
     // Optional: if released, you could also delete the ad here or mark fulfilled
     if (next === 'released') {
-      await supabase.from('ads').update({ status: 'fulfilled' } as any).eq('id', order.ad_id).catch(() => {});
+      try {
+        await supabase.from('ads').update({ status: 'fulfilled' } as any).eq('id', order.ad_id);
+      } catch {}
     }
     return ctx.reply(`Order #${order.id} → ${next}`);
   } catch (e) {

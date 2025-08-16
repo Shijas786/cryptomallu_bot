@@ -47,6 +47,7 @@ export default function P2PTable({ ads, filters }: Props) {
               <th className="text-left font-medium py-2">Amount</th>
               <th className="text-left font-medium py-2">Payment Method</th>
               <th className="text-left font-medium py-2">Action</th>
+              <th className="text-left font-medium py-2">Order</th>
             </tr>
           </thead>
           <tbody>
@@ -67,6 +68,16 @@ export default function P2PTable({ ads, filters }: Props) {
                     {ad.type === 'buy' ? 'Sell' : 'Buy'}
                   </a>
                 </td>
+                <td className="py-3">
+                  <a
+                    href={`https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'Cryptomallu_bot'}?start=${encodeURIComponent('order:' + ad.id)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn btn-outline"
+                  >
+                    Create Order
+                  </a>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -82,14 +93,24 @@ export default function P2PTable({ ads, filters }: Props) {
             </div>
             <div className="mt-2 text-white/80 text-sm">USD: ${ad.price_usd.toLocaleString()} · INR: ₹{ad.price_inr.toLocaleString()}</div>
             <div className="mt-1 text-white/60 text-sm">Amount: {ad.amount.toLocaleString()}</div>
-            <a
-              href={`https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'Cryptomallu_bot'}?start=${encodeURIComponent(ad.id)}`}
-              target="_blank"
-              rel="noreferrer"
-              className="btn btn-primary mt-3 w-full"
-            >
-              {ad.type === 'buy' ? 'Sell' : 'Buy'}
-            </a>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <a
+                href={`https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'Cryptomallu_bot'}?start=${encodeURIComponent(ad.id)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn-primary w-full"
+              >
+                {ad.type === 'buy' ? 'Sell' : 'Buy'}
+              </a>
+              <a
+                href={`https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'Cryptomallu_bot'}?start=${encodeURIComponent('order:' + ad.id)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn-outline w-full"
+              >
+                Create Order
+              </a>
+            </div>
           </div>
         ))}
       </div>

@@ -51,6 +51,15 @@ bot.start(async (ctx) => {
     }, { onConflict: 'telegram_id' });
   }
 
+  // If payload requests order creation, start an order immediately
+  if (payload && payload.startsWith('order:')) {
+    const adId = payload.split(':')[1];
+    if (adId) {
+      await startOrder(ctx as any, adId);
+      return;
+    }
+  }
+
   const text = payload
     ? `Welcome! Opening trade ${payload}.`
     : 'Welcome to Cryptomallu. Browse P2P ads or open our WebApp.';
