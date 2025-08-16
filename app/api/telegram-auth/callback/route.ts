@@ -30,6 +30,10 @@ function verifyTelegramAuth(data: Record<string, string | number>): { valid: boo
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const params = Object.fromEntries(url.searchParams.entries());
+  if (process.env.DEBUG_TELEGRAM_AUTH === 'true') {
+    // eslint-disable-next-line no-console
+    console.log('tg-auth GET incoming', params);
+  }
   const { valid, reason } = verifyTelegramAuth(params);
 
   const payload = valid

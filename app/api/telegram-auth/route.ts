@@ -39,6 +39,10 @@ export async function POST(request: Request) {
     const query = Object.fromEntries(url.searchParams.entries());
     const raw = body?.authData && Object.keys(body.authData).length ? body.authData : query;
     const authData = raw ?? {};
+    if (process.env.DEBUG_TELEGRAM_AUTH === 'true') {
+      // eslint-disable-next-line no-console
+      console.log('tg-auth POST incoming', { query, body: body?.authData || null });
+    }
     const { valid, reason } = verifyTelegramAuth(authData);
     if (!valid) {
       return Response.json({ ok: false, error: 'Invalid auth', reason }, { status: 401 });
