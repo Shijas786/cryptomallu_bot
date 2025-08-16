@@ -21,6 +21,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <nav className="flex items-center gap-4 text-sm">
               <a className="hover:text-primary transition-colors" href="/p2p">P2P</a>
               <a className="hover:text-primary transition-colors" href="/profile">Profile</a>
+              <a className="hover:text-primary transition-colors" href="/in-pieces">In Pieces</a>
               <a className="hover:text-primary transition-colors" href={`https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'Cryptomallu_bot'}`} target="_blank" rel="noreferrer">Telegram</a>
             </nav>
           </div>
